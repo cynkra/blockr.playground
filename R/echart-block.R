@@ -262,6 +262,12 @@ new_echart_block <- function(
                 }
               }
 
+              # Add Open Sans font styling (consistent with blockr universe)
+              parts <- c(
+                parts,
+                "echarts4r::e_text_style(fontFamily = \"Open Sans\")"
+              )
+
               # Build final expression
               text <- paste("data", paste(parts, collapse = " |> "), sep = " |> ")
 
