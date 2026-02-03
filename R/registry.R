@@ -18,4 +18,22 @@ register_playground_blocks <- function() {
     package = utils::packageName(),
     overwrite = TRUE
   )
+  register_blocks(
+    "new_echart_block",
+    name = "EChart",
+    description = "Create interactive visualizations with Apache ECharts",
+    category = "plot",
+    icon = "bar-chart-line",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
+  register_blocks(
+    "new_chartjs_block",
+    name = "Chart.js",
+    description = "Create interactive visualizations with Chart.js",
+    category = "plot",
+    icon = "bar-chart-line",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
 } # nocov end

@@ -34,6 +34,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
     blockr.core (>= 0.1.1),
+    chartjs,
+    dplyr,
+    echarts4r,
     highcharter,
     glue,
     shiny,
@@ -41,5 +44,7 @@ Imports:
     shinyWidgets
 Suggests:
     testthat (>= 3.0.0)
+Remotes:
+    Tutuchan/chartjs@dev
 Config/testthat/edition: 3
 Config/testthat/parallel: true
