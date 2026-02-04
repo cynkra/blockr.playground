@@ -12,6 +12,14 @@ new_echart_block(
   y = character(),
   color = character(),
   size = character(),
+  bins = 30,
+  title = character(),
+  subtitle = character(),
+  y_scale = "auto",
+  x_scale = "auto",
+  axis_label_rotate = 0,
+  legend_position = "bottom",
+  theme = "default",
   ...
 )
 
@@ -21,7 +29,7 @@ new_echart_block(
 }
 \arguments{
 \item{type}{Initial chart type (default "scatter"). Options: "scatter", "line",
-"bar", "area", "pie"}
+"bar", "area", "pie", "boxplot", "histogram"}
 
 \item{x}{Block object}
 
@@ -30,6 +38,22 @@ new_echart_block(
 \item{color}{Column for color/group aesthetic}
 
 \item{size}{Column for size aesthetic (scatter only)}
+
+\item{bins}{Number of bins for histogram (default 30)}
+
+\item{title}{Chart title}
+
+\item{subtitle}{Chart subtitle}
+
+\item{y_scale}{Y-axis scaling: "auto", "data", or "zero"}
+
+\item{x_scale}{X-axis scaling: "auto", "data", or "zero"}
+
+\item{axis_label_rotate}{Rotation angle for axis labels: 0, 45, or 90}
+
+\item{legend_position}{Legend position: "bottom", "top", "left", "right", "none"}
+
+\item{theme}{ECharts theme name}
 
 \item{...}{Forwarded to \code{\link[blockr.core]{new_transform_block}}}
 
@@ -52,6 +76,9 @@ new_echart_block(type = "scatter", x = "wt", y = "mpg")
 
 # Create a bar chart block
 new_echart_block(type = "bar", x = "cyl")
+
+# Create a histogram
+new_echart_block(type = "histogram", x = "mpg", bins = 20)
 
 if (interactive()) {
   library(blockr.core)

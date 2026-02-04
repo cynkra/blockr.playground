@@ -54,4 +54,22 @@ register_playground_blocks <- function() {
     package = utils::packageName(),
     overwrite = TRUE
   )
+  register_blocks(
+    "new_echart_heatmap_block",
+    name = "EChart Heatmap",
+    description = "Create heatmap visualizations with Apache ECharts",
+    category = "plot",
+    icon = "grid-3x3",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
+  register_blocks(
+    "new_echart_radar_block",
+    name = "EChart Radar",
+    description = "Create radar chart visualizations with Apache ECharts",
+    category = "plot",
+    icon = "bullseye",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
 } # nocov end
