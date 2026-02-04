@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Palette Comparison for blockr</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+        }
+        h1 { font-size: 18px; margin-bottom: 5px; }
+        .subtitle { color: #666; font-size: 11px; margin-bottom: 15px; }
+
+        .chart-section {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+        .chart-section h3 {
+            font-size: 12px;
+            margin: 0 0 10px 0;
+            color: #555;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 140px repeat(6, 1fr);
+            gap: 6px;
+            align-items: center;
+        }
+        .grid .header {
+            font-size: 9px;
+            color: #999;
+            text-align: center;
+        }
+        .grid .label {
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .grid .label small {
+            display: block;
+            font-weight: 400;
+            color: #888;
+            font-size: 8px;
+        }
+        .mini-pie {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+        .mini-bar {
+            width: 65px;
+            height: 35px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 2px;
+            margin: 0 auto;
+        }
+        .mini-bar .bar {
+            width: 10px;
+            border-radius: 2px 2px 0 0;
+        }
+        .mini-line {
+            width: 90px;
+            height: 40px;
+            margin: 0 auto;
+        }
+        .color-row {
+            display: flex;
+            gap: 2px;
+            justify-content: flex-start;
+        }
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        .note {
+            font-size: 9px;
+            color: #666;
+            margin-top: 12px;
+            padding: 8px;
+            background: #f0f7ff;
+            border-radius: 4px;
+            border-left: 3px solid #1976d2;
+        }
+        .highlight { background: #e8f5e9 !important; }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 25px 0 10px 0;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Okabe-Ito: Chart-Type-Specific Orderings</h1>
+    <p class="subtitle">Experimenting with Yellow for filled charts, Gray for lines</p>
+
+    <!-- FILLED CHARTS - PIE -->
+    <div class="section-title">🥧 Pie Charts - Yellow Options</div>
+
+    <div class="chart-section">
+        <div class="grid">
+            <div class="header"></div>
+            <div class="header">1</div>
+            <div class="header">2</div>
+            <div class="header">3</div>
+            <div class="header">4</div>
+            <div class="header">5</div>
+            <div class="header">6</div>
+
+            <div class="label">Current<small>Blue→Verm→Sky</small></div>
+            <div class="mini-pie" style="background: #0072B2;"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 180deg, #D55E00 180deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 120deg, #D55E00 120deg 240deg, #56B4E9 240deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 90deg, #D55E00 90deg 180deg, #56B4E9 180deg 270deg, #009E73 270deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 72deg, #D55E00 72deg 144deg, #56B4E9 144deg 216deg, #009E73 216deg 288deg, #E69F00 288deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 60deg, #D55E00 60deg 120deg, #56B4E9 120deg 180deg, #009E73 180deg 240deg, #E69F00 240deg 300deg, #CC79A7 300deg 360deg);"></div>
+
+            <div class="label">Yellow 3rd<small>Blue→Verm→Yellow</small></div>
+            <div class="mini-pie" style="background: #0072B2;"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 180deg, #D55E00 180deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 120deg, #D55E00 120deg 240deg, #F0E442 240deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 90deg, #D55E00 90deg 180deg, #F0E442 180deg 270deg, #009E73 270deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 72deg, #D55E00 72deg 144deg, #F0E442 144deg 216deg, #009E73 216deg 288deg, #56B4E9 288deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 60deg, #D55E00 60deg 120deg, #F0E442 120deg 180deg, #009E73 180deg 240deg, #56B4E9 240deg 300deg, #CC79A7 300deg 360deg);"></div>
+
+            <div class="label highlight">Blue→Yellow pair<small>Blue→Yellow→Verm</small></div>
+            <div class="mini-pie" style="background: #0072B2;"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 180deg, #F0E442 180deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 120deg, #F0E442 120deg 240deg, #D55E00 240deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 90deg, #F0E442 90deg 180deg, #D55E00 180deg 270deg, #009E73 270deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 72deg, #F0E442 72deg 144deg, #D55E00 144deg 216deg, #009E73 216deg 288deg, #56B4E9 288deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 60deg, #F0E442 60deg 120deg, #D55E00 120deg 180deg, #009E73 180deg 240deg, #56B4E9 240deg 300deg, #CC79A7 300deg 360deg);"></div>
+
+            <div class="label">Blue→Orange pair<small>Blue→Orange→Green</small></div>
+            <div class="mini-pie" style="background: #0072B2;"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 180deg, #E69F00 180deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 120deg, #E69F00 120deg 240deg, #009E73 240deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 90deg, #E69F00 90deg 180deg, #009E73 180deg 270deg, #D55E00 270deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 72deg, #E69F00 72deg 144deg, #009E73 144deg 216deg, #D55E00 216deg 288deg, #56B4E9 288deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#0072B2 0deg 60deg, #E69F00 60deg 120deg, #009E73 120deg 180deg, #D55E00 180deg 240deg, #56B4E9 240deg 300deg, #CC79A7 300deg 360deg);"></div>
+
+            <div class="label">Green→Yellow pair<small>Green→Yellow→Blue</small></div>
+            <div class="mini-pie" style="background: #009E73;"></div>
+            <div class="mini-pie" style="background: conic-gradient(#009E73 0deg 180deg, #F0E442 180deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#009E73 0deg 120deg, #F0E442 120deg 240deg, #0072B2 240deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#009E73 0deg 90deg, #F0E442 90deg 180deg, #0072B2 180deg 270deg, #D55E00 270deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#009E73 0deg 72deg, #F0E442 72deg 144deg, #0072B2 144deg 216deg, #D55E00 216deg 288deg, #56B4E9 288deg 360deg);"></div>
+            <div class="mini-pie" style="background: conic-gradient(#009E73 0deg 60deg, #F0E442 60deg 120deg, #0072B2 120deg 180deg, #D55E00 180deg 240deg, #56B4E9 240deg 300deg, #CC79A7 300deg 360deg);"></div>
+        </div>
+    </div>
+
+    <!-- FILLED CHARTS - BAR -->
+    <div class="section-title">📊 Bar Charts - Yellow Options</div>
+
+    <div class="chart-section">
+        <div class="grid">
+            <div class="header"></div>
+            <div class="header">1</div>
+            <div class="header">2</div>
+            <div class="header">3</div>
+            <div class="header">4</div>
+            <div class="header">5</div>
+            <div class="header">6</div>
+
+            <div class="label">Current<small>Blue→Verm→Sky</small></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #D55E00; height: 20px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #D55E00; height: 20px;"></div><div class="bar" style="background: #56B4E9; height: 32px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #D55E00; height: 20px;"></div><div class="bar" style="background: #56B4E9; height: 32px;"></div><div class="bar" style="background: #009E73; height: 16px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 26px;"></div><div class="bar" style="background: #D55E00; height: 18px;"></div><div class="bar" style="background: #56B4E9; height: 30px;"></div><div class="bar" style="background: #009E73; height: 14px;"></div><div class="bar" style="background: #E69F00; height: 22px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 24px;"></div><div class="bar" style="background: #D55E00; height: 16px;"></div><div class="bar" style="background: #56B4E9; height: 28px;"></div><div class="bar" style="background: #009E73; height: 12px;"></div><div class="bar" style="background: #E69F00; height: 20px;"></div><div class="bar" style="background: #CC79A7; height: 32px;"></div></div>
+
+            <div class="label">Yellow 3rd<small>Blue→Verm→Yellow</small></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #D55E00; height: 20px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #D55E00; height: 20px;"></div><div class="bar" style="background: #F0E442; height: 32px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #D55E00; height: 20px;"></div><div class="bar" style="background: #F0E442; height: 32px;"></div><div class="bar" style="background: #009E73; height: 16px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 26px;"></div><div class="bar" style="background: #D55E00; height: 18px;"></div><div class="bar" style="background: #F0E442; height: 30px;"></div><div class="bar" style="background: #009E73; height: 14px;"></div><div class="bar" style="background: #56B4E9; height: 22px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 24px;"></div><div class="bar" style="background: #D55E00; height: 16px;"></div><div class="bar" style="background: #F0E442; height: 28px;"></div><div class="bar" style="background: #009E73; height: 12px;"></div><div class="bar" style="background: #56B4E9; height: 20px;"></div><div class="bar" style="background: #CC79A7; height: 32px;"></div></div>
+
+            <div class="label highlight">Blue→Yellow pair<small>Blue→Yellow→Verm</small></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #F0E442; height: 20px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #F0E442; height: 20px;"></div><div class="bar" style="background: #D55E00; height: 32px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #F0E442; height: 20px;"></div><div class="bar" style="background: #D55E00; height: 32px;"></div><div class="bar" style="background: #009E73; height: 16px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 26px;"></div><div class="bar" style="background: #F0E442; height: 18px;"></div><div class="bar" style="background: #D55E00; height: 30px;"></div><div class="bar" style="background: #009E73; height: 14px;"></div><div class="bar" style="background: #56B4E9; height: 22px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 24px;"></div><div class="bar" style="background: #F0E442; height: 16px;"></div><div class="bar" style="background: #D55E00; height: 28px;"></div><div class="bar" style="background: #009E73; height: 12px;"></div><div class="bar" style="background: #56B4E9; height: 20px;"></div><div class="bar" style="background: #CC79A7; height: 32px;"></div></div>
+
+            <div class="label">Blue→Orange pair<small>Blue→Orange→Green</small></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #E69F00; height: 20px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #E69F00; height: 20px;"></div><div class="bar" style="background: #009E73; height: 32px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 28px;"></div><div class="bar" style="background: #E69F00; height: 20px;"></div><div class="bar" style="background: #009E73; height: 32px;"></div><div class="bar" style="background: #D55E00; height: 16px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 26px;"></div><div class="bar" style="background: #E69F00; height: 18px;"></div><div class="bar" style="background: #009E73; height: 30px;"></div><div class="bar" style="background: #D55E00; height: 14px;"></div><div class="bar" style="background: #56B4E9; height: 22px;"></div></div>
+            <div class="mini-bar"><div class="bar" style="background: #0072B2; height: 24px;"></div><div class="bar" style="background: #E69F00; height: 16px;"></div><div class="bar" style="background: #009E73; height: 28px;"></div><div class="bar" style="background: #D55E00; height: 12px;"></div><div class="bar" style="background: #56B4E9; height: 20px;"></div><div class="bar" style="background: #CC79A7; height: 32px;"></div></div>
+        </div>
+    </div>
+
+    <!-- LINE CHARTS -->
+    <div class="section-title">📈 Line Charts - Black 3rd, Gray last</div>
+    <p style="font-size: 10px; color: #666; margin-bottom: 10px;">Blue first (prettier single line), Black for contrast at 3, Gray as last resort for 7+</p>
+
+    <div class="chart-section">
+        <div class="grid" style="grid-template-columns: 140px 120px 1fr;">
+            <div class="header"></div>
+            <div class="header">Full sequence (8)</div>
+            <div class="header">Preview (5 series)</div>
+
+            <div class="label highlight">Recommended<small>Blue→Verm→Black→Green→Sky→Orng→Pink→Gray</small></div>
+            <div class="color-row">
+                <div class="color-dot" style="background: #0072B2;"></div>
+                <div class="color-dot" style="background: #D55E00;"></div>
+                <div class="color-dot" style="background: #000000;"></div>
+                <div class="color-dot" style="background: #009E73;"></div>
+                <div class="color-dot" style="background: #56B4E9;"></div>
+                <div class="color-dot" style="background: #E69F00;"></div>
+                <div class="color-dot" style="background: #CC79A7;"></div>
+                <div class="color-dot" style="background: #999999;"></div>
+            </div>
+            <div class="mini-line">
+                <svg viewBox="0 0 110 45">
+                    <polyline points="5,38 28,18 55,28 82,12 105,22" stroke="#0072B2" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,33 28,23 55,33 82,20 105,28" stroke="#D55E00" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,28 28,33 55,23 82,28 105,18" stroke="#000000" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,42 28,28 55,38 82,33 105,35" stroke="#009E73" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,23 28,38 55,18 82,38 105,12" stroke="#56B4E9" stroke-width="2.5" fill="none"/>
+                </svg>
+            </div>
+
+            <div class="label">Current (no black)<small>Blue→Verm→Sky→Green→Orng→Pink→Yellow</small></div>
+            <div class="color-row">
+                <div class="color-dot" style="background: #0072B2;"></div>
+                <div class="color-dot" style="background: #D55E00;"></div>
+                <div class="color-dot" style="background: #56B4E9;"></div>
+                <div class="color-dot" style="background: #009E73;"></div>
+                <div class="color-dot" style="background: #E69F00;"></div>
+                <div class="color-dot" style="background: #CC79A7;"></div>
+                <div class="color-dot" style="background: #F0E442;"></div>
+            </div>
+            <div class="mini-line">
+                <svg viewBox="0 0 110 45">
+                    <polyline points="5,38 28,18 55,28 82,12 105,22" stroke="#0072B2" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,33 28,23 55,33 82,20 105,28" stroke="#D55E00" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,28 28,33 55,23 82,28 105,18" stroke="#56B4E9" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,42 28,28 55,38 82,33 105,35" stroke="#009E73" stroke-width="2.5" fill="none"/>
+                    <polyline points="5,23 28,38 55,18 82,38 105,12" stroke="#E69F00" stroke-width="2.5" fill="none"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="note">
+        <strong>Summary of options:</strong><br>
+        • <strong>Filled (pie/bar)</strong>: Blue→Yellow or Blue→Vermilion pairs work well. Yellow as 2nd or 3rd adds brightness.<br>
+        • <strong>Lines</strong>: Blue→Vermilion→Gray/Black for contrast. #999999 (gray) is softer than pure black.<br>
+        • The 2-color pair for filled vs lines could differ (Blue+Yellow for filled, Blue+Verm for lines).
+    </div>
+
+</body>
+</html>
