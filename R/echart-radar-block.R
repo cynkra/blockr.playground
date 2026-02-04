@@ -110,9 +110,9 @@ new_echart_radar_block <- function(
                 ""
               }
 
-              # Determine effective theme: block setting takes priority, then global option
+              # Determine effective theme: block setting takes priority, then board option
               if (!isTruthy(theme_val) || isTRUE(theme_val == "default")) {
-                global_theme <- getOption("blockr.echart_theme", "default")
+                global_theme <- blockr.core::get_board_option_or_null("echart_theme", session) %||% "default"
                 if (global_theme != "default") {
                   theme_val <- global_theme
                 }
@@ -331,4 +331,13 @@ block_output.echart_radar_block <- function(x, result, session) {
     }
     result
   })
+}
+
+#' @rdname new_echart_radar_block
+#' @export
+board_options.echart_radar_block <- function(x, ...) {
+  blockr.core::combine_board_options(
+    new_echart_theme_option(...),
+    NextMethod()
+  )
 }

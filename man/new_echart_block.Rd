@@ -4,6 +4,7 @@
 \alias{new_echart_block}
 \alias{block_ui.echart_block}
 \alias{block_output.echart_block}
+\alias{board_options.echart_block}
 \title{Universal EChart block with selectable visualization types}
 \usage{
 new_echart_block(
@@ -26,10 +27,12 @@ new_echart_block(
 \method{block_ui}{echart_block}(id, x, ...)
 
 \method{block_output}{echart_block}(x, result, session)
+
+\method{board_options}{echart_block}(x, ...)
 }
 \arguments{
 \item{type}{Initial chart type (default "scatter"). Options: "scatter", "line",
-"bar", "area", "pie", "boxplot", "histogram"}
+"bar", "area", "pie", "boxplot", "histogram", "funnel", "density"}
 
 \item{x}{Block object}
 

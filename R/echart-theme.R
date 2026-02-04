@@ -29,3 +29,59 @@ echart_theme_blockr <- function() {
     }'
   )
 }
+
+#' ECharts theme board option
+#'
+#' Creates a board option for selecting the default ECharts theme.
+#' This theme applies to all ECharts blocks on the board unless
+#' overridden by individual block settings.
+#'
+#' @param value Default theme value
+#' @param category Category for settings sidebar grouping
+#' @param ... Additional arguments passed to new_board_option
+#'
+#' @export
+new_echart_theme_option <- function(value = "default",
+                                    category = "Chart options", ...) {
+  blockr.core::new_board_option(
+    id = "echart_theme",
+    default = value,
+    ui = function(id) {
+      selectInput(
+        NS(id, "echart_theme"),
+        "ECharts Theme",
+        choices = c(
+          "Default" = "default",
+          "Blockr" = "blockr",
+          "Dark" = "dark",
+          "Vintage" = "vintage",
+          "Westeros" = "westeros",
+          "Essos" = "essos",
+          "Wonderland" = "wonderland",
+          "Walden" = "walden",
+          "Chalk" = "chalk",
+          "Infographic" = "infographic",
+          "Macarons" = "macarons",
+          "Roma" = "roma",
+          "Shine" = "shine",
+          "Purple Passion" = "purple-passion"
+        ),
+        selected = value
+      )
+    },
+    server = function(..., session) {
+      observeEvent(
+        blockr.core::get_board_option_or_null("echart_theme", session),
+        {
+          updateSelectInput(
+            session,
+            "echart_theme",
+            selected = blockr.core::get_board_option_value("echart_theme", session)
+          )
+        }
+      )
+    },
+    category = category,
+    ...
+  )
+}

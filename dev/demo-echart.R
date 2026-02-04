@@ -149,6 +149,45 @@ run_app(
     ),
 
     # ============================================================
+    # FUNNEL CHART - conversion/pipeline stages
+    # ============================================================
+    # Requires pre-aggregated data with stage names and values
+
+    funnel_data = new_dataset_block(dataset = "mtcars"),
+
+    funnel_agg = new_summarize_block(
+      summaries = list(
+        count = list(func = "dplyr::n", col = "")
+      ),
+      by = "cyl"
+    ),
+
+    ec_funnel = new_echart_block(
+      type = "funnel",
+      x = "cyl",
+      y = "count",
+      title = "Cars by Cylinder Count"
+    ),
+
+    # ============================================================
+    # DENSITY CHART - smooth distribution visualization
+    # ============================================================
+
+    ec_density = new_echart_block(
+      type = "density",
+      x = "mpg",
+      title = "MPG Density Distribution"
+    ),
+
+    # Density with grouping (multiple densities)
+    ec_density_grouped = new_echart_block(
+      type = "density",
+      x = "mpg",
+      color = "cyl",
+      title = "MPG Density by Cylinders"
+    ),
+
+    # ============================================================
     # HEATMAP - using mtcars aggregated data (specialized block)
     # ============================================================
 
@@ -226,6 +265,14 @@ run_app(
 
     # Histogram from mtcars
     new_link("mtcars_data", "ec_histogram", "data"),
+
+    # Funnel from aggregated mtcars
+    new_link("funnel_data", "funnel_agg", "data"),
+    new_link("funnel_agg", "ec_funnel", "data"),
+
+    # Density from mtcars
+    new_link("mtcars_data", "ec_density", "data"),
+    new_link("mtcars_data", "ec_density_grouped", "data"),
 
     # Heatmap from aggregated mtcars
     new_link("mtcars_data", "heatmap_agg", "data"),

@@ -4,7 +4,7 @@
 #' types and dynamically shows relevant aesthetics for the selected visualization.
 #'
 #' @param type Initial chart type (default "scatter"). Options: "scatter", "line",
-#'   "bar", "area", "pie", "boxplot", "histogram"
+#'   "bar", "area", "pie", "boxplot", "histogram", "funnel", "density"
 #' @param x Column for x-axis
 #' @param y Column for y-axis
 #' @param color Column for color/group aesthetic
@@ -93,6 +93,14 @@ normalize_text <- function(val) {
     histogram = list(
       required = c("x"),
       optional = c("bins")
+    ),
+    funnel = list(
+      required = c("x", "y"),
+      optional = c()
+    ),
+    density = list(
+      required = c("x"),
+      optional = c("color")
     )
   )
 
@@ -258,10 +266,10 @@ normalize_text <- function(val) {
               # Start building the expression parts
               parts <- list()
 
-              # Add grouping if color is specified (except for pie, histogram, boxplot)
+              # Add grouping if color is specified (except for pie, histogram, boxplot, funnel)
               has_group <- r_color() != "(none)" &&
                 "color" %in% chart_config$optional &&
-                !current_type %in% c("pie", "histogram", "boxplot")
+                !current_type %in% c("pie", "histogram", "boxplot", "funnel")
 
               if (has_group) {
                 color_col <- backtick_if_needed(r_color())
@@ -273,8 +281,8 @@ normalize_text <- function(val) {
                 parts <- c(parts, glue::glue("dplyr::group_by({x_col})"))
               }
 
-              # Add e_charts() call - histogram and boxplot need empty e_charts()
-              if (current_type %in% c("histogram", "boxplot")) {
+              # Add e_charts() call - histogram, boxplot, funnel, density need empty e_charts()
+              if (current_type %in% c("histogram", "boxplot", "funnel", "density")) {
                 parts <- c(parts, "echarts4r::e_charts()")
               } else {
                 parts <- c(parts, glue::glue("echarts4r::e_charts({x_col})"))
@@ -323,6 +331,13 @@ normalize_text <- function(val) {
                 histogram = {
                   bin_count <- r_bins()
                   glue::glue("echarts4r::e_histogram({x_col}, breaks = {bin_count})")
+                },
+                funnel = {
+                  y_col <- backtick_if_needed(r_y())
+                  glue::glue("echarts4r::e_funnel({y_col}, {x_col})")
+                },
+                density = {
+                  glue::glue("echarts4r::e_density({x_col})")
                 }
               )
               parts <- c(parts, chart_call)
@@ -350,8 +365,8 @@ normalize_text <- function(val) {
               grid_top <- if (nchar(r_title()) > 0) 60 else 40
               grid_bottom <- if (r_legend_position() == "bottom" && (has_group || current_type == "pie")) 60 else 40
 
-              # Axis styling only for non-pie charts
-              if (!current_type %in% c("pie")) {
+              # Axis styling only for non-pie and non-funnel charts
+              if (!current_type %in% c("pie", "funnel")) {
                 # Build y-axis options
                 y_axis_opts <- list(
                   "axisLine = list(show = FALSE)",
@@ -440,10 +455,10 @@ normalize_text <- function(val) {
                 parts <- c(parts, "echarts4r::e_legend(show = FALSE)")
               }
 
-              # Determine effective theme: block setting takes priority, then global option
+              # Determine effective theme: block setting takes priority, then board option
               theme_val <- r_theme()
               if (theme_val == "default") {
-                global_theme <- getOption("blockr.echart_theme", "default")
+                global_theme <- blockr.core::get_board_option_or_null("echart_theme", session) %||% "default"
                 if (global_theme != "default") {
                   theme_val <- global_theme
                 }
@@ -606,7 +621,9 @@ normalize_text <- function(val) {
                       tags$div(icon("chart-area"), tags$span("Area")),
                       tags$div(icon("chart-pie"), tags$span("Pie")),
                       tags$div(icon("box"), tags$span("Boxplot")),
-                      tags$div(icon("chart-column"), tags$span("Histogram"))
+                      tags$div(icon("chart-column"), tags$span("Histogram")),
+                      tags$div(icon("filter"), tags$span("Funnel")),
+                      tags$div(icon("wave-square"), tags$span("Density"))
                     ),
                     choiceValues = c(
                       "scatter",
@@ -615,7 +632,9 @@ normalize_text <- function(val) {
                       "area",
                       "pie",
                       "boxplot",
-                      "histogram"
+                      "histogram",
+                      "funnel",
+                      "density"
                     ),
                     selected = type,
                     status = "light",
@@ -911,4 +930,13 @@ block_output.echart_block <- function(x, result, session) {
     }
     result
   })
+}
+
+#' @rdname new_echart_block
+#' @export
+board_options.echart_block <- function(x, ...) {
+  blockr.core::combine_board_options(
+    new_echart_theme_option(...),
+    NextMethod()
+  )
 }

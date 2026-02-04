@@ -4,6 +4,7 @@
 \alias{new_echart_radar_block}
 \alias{block_ui.echart_radar_block}
 \alias{block_output.echart_radar_block}
+\alias{board_options.echart_radar_block}
 \title{ECharts Radar Block}
 \usage{
 new_echart_radar_block(
@@ -17,6 +18,8 @@ new_echart_radar_block(
 \method{block_ui}{echart_radar_block}(id, x, ...)
 
 \method{block_output}{echart_radar_block}(x, result, session)
+
+\method{board_options}{echart_radar_block}(x, ...)
 }
 \arguments{
 \item{group}{Column to group by (creates separate radar shapes per group)}
