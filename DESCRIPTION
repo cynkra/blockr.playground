@@ -33,12 +33,14 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
+    apexcharter,
     blockr.core (>= 0.1.1),
     chartjs,
     dplyr,
     echarts4r,
-    highcharter,
     glue,
+    highcharter,
+    plotly,
     shiny,
     shinyjs,
     shinyWidgets

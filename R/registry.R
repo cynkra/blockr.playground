@@ -36,4 +36,22 @@ register_playground_blocks <- function() {
     package = utils::packageName(),
     overwrite = TRUE
   )
+  register_blocks(
+    "new_plotly_block",
+    name = "Plotly",
+    description = "Create interactive scientific visualizations with Plotly",
+    category = "plot",
+    icon = "bar-chart-line",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
+  register_blocks(
+    "new_apexchart_block",
+    name = "ApexCharts",
+    description = "Create modern animated visualizations with ApexCharts",
+    category = "plot",
+    icon = "bar-chart-line",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
 } # nocov end
