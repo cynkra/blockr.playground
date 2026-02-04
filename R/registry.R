@@ -72,4 +72,49 @@ register_playground_blocks <- function() {
     package = utils::packageName(),
     overwrite = TRUE
   )
+  register_blocks(
+    "new_echart_sankey_block",
+    name = "EChart Sankey",
+    description = "Create Sankey flow diagrams with Apache ECharts",
+    category = "plot",
+    icon = "diagram-3",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
+  register_blocks(
+    "new_echart_gauge_block",
+    name = "EChart Gauge",
+    description = "Create gauge/meter visualizations with Apache ECharts",
+    category = "plot",
+    icon = "speedometer2",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
+  register_blocks(
+    "new_echart_candlestick_block",
+    name = "EChart Candlestick",
+    description = "Create candlestick/OHLC charts with Apache ECharts",
+    category = "plot",
+    icon = "graph-up-arrow",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
+  register_blocks(
+    "new_echart_calendar_block",
+    name = "EChart Calendar",
+    description = "Create calendar heatmaps with Apache ECharts",
+    category = "plot",
+    icon = "calendar3",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
+  register_blocks(
+    "new_echart_treemap_block",
+    name = "EChart Treemap",
+    description = "Create treemap visualizations with Apache ECharts",
+    category = "plot",
+    icon = "grid-fill",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
 } # nocov end

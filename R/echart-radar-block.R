@@ -57,6 +57,9 @@ new_echart_radar_block <- function(
           r_title <- reactiveVal(normalize_text(title))
           r_theme <- reactiveVal(theme)
 
+          # Sync with board theme option
+          r_board_theme <- setup_board_theme_sync(session)
+
           # Observe input changes
           observeEvent(input$group, r_group(input$group))
           observeEvent(input$metrics, r_metrics(input$metrics), ignoreNULL = FALSE)
@@ -112,10 +115,7 @@ new_echart_radar_block <- function(
 
               # Determine effective theme: block setting takes priority, then board option
               if (!isTruthy(theme_val) || isTRUE(theme_val == "default")) {
-                global_theme <- blockr.core::get_board_option_or_null("echart_theme", session) %||% "default"
-                if (global_theme != "default") {
-                  theme_val <- global_theme
-                }
+                theme_val <- r_board_theme()
               }
 
               theme_part <- if (isTruthy(theme_val) && !isTRUE(theme_val == "default")) {
@@ -340,4 +340,10 @@ board_options.echart_radar_block <- function(x, ...) {
     new_echart_theme_option(...),
     NextMethod()
   )
+}
+
+#' @rdname new_echart_radar_block
+#' @export
+block_render_trigger.echart_radar_block <- function(x, session = blockr.core::get_session()) {
+  blockr.core::get_board_option_or_null("echart_theme", session)
 }

@@ -1,35 +1,35 @@
-#' ECharts Heatmap Block
+#' ECharts Treemap Block
 #'
-#' A specialized block for creating heatmap visualizations with ECharts.
-#' Requires pre-aggregated data with categorical x/y columns and a numeric value.
+#' A specialized block for creating treemap visualizations with ECharts.
+#' Shows hierarchical data as nested rectangles with sizes proportional to values.
 #'
-#' @param x Column for x-axis categories (rows)
-#' @param y Column for y-axis categories (columns)
-#' @param value Column for numeric values (determines color intensity)
+#' @param name Column for category/label names
+#' @param value Column for size/value (determines rectangle size)
+#' @param parent Column for parent category (optional, for hierarchical data)
 #' @param title Chart title
 #' @param theme ECharts theme name
 #' @param ... Forwarded to \code{\link[blockr.core]{new_transform_block}}
 #'
-#' @return A block object of class `echart_heatmap_block`.
+#' @return A block object of class `echart_treemap_block`.
 #'
 #' @examples
-#' # Create a heatmap block
-#' new_echart_heatmap_block(x = "cyl", y = "gear", value = "avg_mpg")
+#' # Create a treemap block
+#' new_echart_treemap_block(name = "category", value = "sales")
 #'
 #' if (interactive()) {
 #'   library(blockr.core)
-#'   library(dplyr)
-#'   agg_data <- mtcars |>
-#'     group_by(cyl, gear) |>
-#'     summarize(avg_mpg = mean(mpg), .groups = "drop")
-#'   serve(new_echart_heatmap_block(), list(data = agg_data))
+#'   sales_data <- data.frame(
+#'     category = c("Electronics", "Clothing", "Food", "Books"),
+#'     sales = c(1200, 800, 600, 400)
+#'   )
+#'   serve(new_echart_treemap_block(), list(data = sales_data))
 #' }
 #'
 #' @export
-new_echart_heatmap_block <- function(
-    x = character(),
-    y = character(),
+new_echart_treemap_block <- function(
+    name = character(),
     value = character(),
+    parent = character(),
     title = character(),
     theme = "default",
     ...
@@ -44,13 +44,6 @@ new_echart_heatmap_block <- function(
     if (!isTruthy(val) || length(val) == 0) "" else val
   }
 
-  # Available themes
-  available_themes <- c(
-    "default", "blockr", "dark", "vintage", "westeros", "essos",
-    "wonderland", "walden", "chalk", "infographic",
-    "macarons", "roma", "shine", "purple-passion"
-  )
-
   blockr.core::new_transform_block(
     server = function(id, data) {
       moduleServer(
@@ -63,9 +56,9 @@ new_echart_heatmap_block <- function(
           })
 
           # Initialize reactive values
-          r_x <- reactiveVal(x)
-          r_y <- reactiveVal(normalize_aes(y))
+          r_name <- reactiveVal(name)
           r_value <- reactiveVal(normalize_aes(value))
+          r_parent <- reactiveVal(normalize_aes(parent))
           r_title <- reactiveVal(normalize_text(title))
           r_theme <- reactiveVal(theme)
 
@@ -73,9 +66,9 @@ new_echart_heatmap_block <- function(
           r_board_theme <- setup_board_theme_sync(session)
 
           # Observe input changes
-          observeEvent(input$x, r_x(input$x))
-          observeEvent(input$y, r_y(normalize_aes(input$y)))
+          observeEvent(input$name, r_name(input$name))
           observeEvent(input$value, r_value(normalize_aes(input$value)))
+          observeEvent(input$parent, r_parent(normalize_aes(input$parent)))
           observeEvent(input$title, r_title(normalize_text(input$title)))
           observeEvent(input$theme, r_theme(input$theme))
 
@@ -85,15 +78,9 @@ new_echart_heatmap_block <- function(
             {
               updateSelectInput(
                 session,
-                inputId = "x",
+                inputId = "name",
                 choices = cols(),
-                selected = r_x()
-              )
-              updateSelectInput(
-                session,
-                inputId = "y",
-                choices = c("(none)", cols()),
-                selected = r_y()
+                selected = r_name()
               )
               updateSelectInput(
                 session,
@@ -101,41 +88,39 @@ new_echart_heatmap_block <- function(
                 choices = c("(none)", numeric_cols()),
                 selected = r_value()
               )
+              updateSelectInput(
+                session,
+                inputId = "parent",
+                choices = c("(none)", cols()),
+                selected = r_parent()
+              )
             }
           )
 
           list(
             expr = reactive({
               # Get current values with safe defaults
-              x_val <- r_x()
-              y_val <- r_y()
+              name_val <- r_name()
               value_val <- r_value()
+              parent_val <- r_parent()
               title_val <- r_title()
               theme_val <- r_theme()
 
-              # Validate required fields (use isTRUE for safe comparison)
-              if (!isTruthy(x_val) || length(x_val) == 0) {
-                return(quote(NULL))
-              }
-              if (!isTruthy(y_val) || isTRUE(y_val == "(none)")) {
+              # Validate required fields
+              if (!isTruthy(name_val) || length(name_val) == 0) {
                 return(quote(NULL))
               }
               if (!isTruthy(value_val) || isTRUE(value_val == "(none)")) {
                 return(quote(NULL))
               }
 
-              x_col <- x_val
-              y_col <- y_val
-              value_col_bt <- backtick_if_needed(value_val)
+              name_col <- backtick_if_needed(name_val)
+              value_col <- backtick_if_needed(value_val)
 
-              # Build echarts4r expression for heatmap using local() to handle intermediate values
-              # ECharts heatmaps need numeric 0-based indices for x/y positions
+              # Build title part
               has_title <- isTruthy(title_val) && nchar(title_val) > 0
-              grid_top <- if (has_title) 60 else 40
-
-              # Build the expression as a local block
               title_part <- if (has_title) {
-                glue::glue(" |>\n  echarts4r::e_title(\"{title_val}\")")
+                glue::glue(" |>\n    echarts4r::e_title(\"{title_val}\")")
               } else {
                 ""
               }
@@ -146,38 +131,28 @@ new_echart_heatmap_block <- function(
               }
 
               theme_part <- if (isTruthy(theme_val) && !isTRUE(theme_val == "default")) {
-                glue::glue(" |>\n  echarts4r::e_theme(\"{theme_val}\")")
+                glue::glue(" |>\n    echarts4r::e_theme(\"{theme_val}\")")
               } else {
                 ""
               }
 
+              # Treemap requires columns named 'name' and 'value'
+              # Rename selected columns to match expected format
               expr_text <- glue::glue("
-local({{
-  .x_cats <- sort(unique(data[['{x_col}']]))
-  .y_cats <- sort(unique(data[['{y_col}']]))
-  data |>
-    dplyr::mutate(
-      .x_idx = match({backtick_if_needed(x_col)}, .x_cats) - 1,
-      .y_idx = match({backtick_if_needed(y_col)}, .y_cats) - 1
-    ) |>
-    echarts4r::e_charts(.x_idx) |>
-    echarts4r::e_heatmap(.y_idx, {value_col_bt}) |>
-    echarts4r::e_visual_map({value_col_bt}) |>
-    echarts4r::e_grid(left = 60, right = 80, top = {grid_top}, bottom = 60) |>
-    echarts4r::e_x_axis(type = 'category', data = as.character(.x_cats), axisLabel = list(color = '#666')) |>
-    echarts4r::e_y_axis(type = 'category', data = as.character(.y_cats), axisLabel = list(color = '#666')) |>
-    echarts4r::e_legend(show = FALSE){title_part}{theme_part} |>
-    echarts4r::e_text_style(fontFamily = 'Open Sans') |>
-    echarts4r::e_tooltip()
-}})
+data |>
+  dplyr::rename(name = {name_col}, value = {value_col}) |>
+  echarts4r::e_charts() |>
+  echarts4r::e_treemap(){title_part}{theme_part} |>
+  echarts4r::e_text_style(fontFamily = 'Open Sans') |>
+  echarts4r::e_tooltip()
 ")
 
               parse(text = expr_text)[[1]]
             }),
             state = list(
-              x = r_x,
-              y = r_y,
+              name = r_name,
               value = r_value,
+              parent = r_parent,
               title = r_title,
               theme = r_theme
             )
@@ -204,7 +179,7 @@ local({{
           div(
             class = "block-form-grid",
 
-            # Heatmap Mappings Section
+            # Treemap Mappings Section
             div(
               class = "block-section",
               tags$h4(
@@ -212,7 +187,7 @@ local({{
                   "display: flex; align-items: center;",
                   "justify-content: space-between;"
                 ),
-                "Heatmap Mappings",
+                "Treemap Mappings",
                 tags$small(
                   tags$span("*", style = "color: #dc3545; font-weight: bold;"),
                   " Required field",
@@ -224,35 +199,21 @@ local({{
               ),
               div(
                 class = "block-section-grid",
-                # X-axis (rows)
+                # Name
                 div(
                   class = "block-input-wrapper",
                   selectInput(
-                    inputId = ns("x"),
+                    inputId = ns("name"),
                     label = tags$span(
-                      tags$strong("X Category"),
+                      tags$strong("Name"),
                       tags$span("*", style = "color: #dc3545; margin-left: 2px;")
                     ),
-                    choices = x,
-                    selected = x,
+                    choices = name,
+                    selected = name,
                     width = "100%"
                   )
                 ),
-                # Y-axis (columns)
-                div(
-                  class = "block-input-wrapper",
-                  selectInput(
-                    inputId = ns("y"),
-                    label = tags$span(
-                      tags$strong("Y Category"),
-                      tags$span("*", style = "color: #dc3545; margin-left: 2px;")
-                    ),
-                    choices = c("(none)", y),
-                    selected = normalize_aes(y),
-                    width = "100%"
-                  )
-                ),
-                # Value (color)
+                # Value
                 div(
                   class = "block-input-wrapper",
                   selectInput(
@@ -263,6 +224,17 @@ local({{
                     ),
                     choices = c("(none)", value),
                     selected = normalize_aes(value),
+                    width = "100%"
+                  )
+                ),
+                # Parent (optional)
+                div(
+                  class = "block-input-wrapper",
+                  selectInput(
+                    inputId = ns("parent"),
+                    label = "Parent (for hierarchy)",
+                    choices = c("(none)", parent),
+                    selected = normalize_aes(parent),
                     width = "100%"
                   )
                 )
@@ -320,28 +292,28 @@ local({{
         stop("Input must be a data frame")
       }
     },
-    class = "echart_heatmap_block",
-    allow_empty_state = c("y", "value", "title"),
+    class = "echart_treemap_block",
+    allow_empty_state = c("value", "parent", "title"),
     ...
   )
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_treemap_block
 #' @param id Module ID
 #' @param x Block object
 #' @export
-block_ui.echart_heatmap_block <- function(id, x, ...) {
+block_ui.echart_treemap_block <- function(id, x, ...) {
   tagList(
     echart_theme_blockr(),
     echarts4r::echarts4rOutput(NS(id, "result"), height = "400px")
   )
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_treemap_block
 #' @param result Evaluation result
 #' @param session Shiny session object
 #' @export
-block_output.echart_heatmap_block <- function(x, result, session) {
+block_output.echart_treemap_block <- function(x, result, session) {
   echarts4r::renderEcharts4r({
     if (!inherits(result, "echarts4r")) {
       return(NULL)
@@ -350,17 +322,17 @@ block_output.echart_heatmap_block <- function(x, result, session) {
   })
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_treemap_block
 #' @export
-board_options.echart_heatmap_block <- function(x, ...) {
+board_options.echart_treemap_block <- function(x, ...) {
   blockr.core::combine_board_options(
     new_echart_theme_option(...),
     NextMethod()
   )
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_treemap_block
 #' @export
-block_render_trigger.echart_heatmap_block <- function(x, session = blockr.core::get_session()) {
+block_render_trigger.echart_treemap_block <- function(x, session = blockr.core::get_session()) {
   blockr.core::get_board_option_or_null("echart_theme", session)
 }

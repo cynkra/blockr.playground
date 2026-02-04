@@ -5,6 +5,7 @@
 \alias{block_ui.echart_radar_block}
 \alias{block_output.echart_radar_block}
 \alias{board_options.echart_radar_block}
+\alias{block_render_trigger.echart_radar_block}
 \title{ECharts Radar Block}
 \usage{
 new_echart_radar_block(
@@ -20,6 +21,8 @@ new_echart_radar_block(
 \method{block_output}{echart_radar_block}(x, result, session)
 
 \method{board_options}{echart_radar_block}(x, ...)
+
+\method{block_render_trigger}{echart_radar_block}(x, session = blockr.core::get_session())
 }
 \arguments{
 \item{group}{Column to group by (creates separate radar shapes per group)}

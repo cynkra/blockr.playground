@@ -188,6 +188,30 @@ run_app(
     ),
 
     # ============================================================
+    # STEP CHART - discrete changes over time
+    # ============================================================
+
+    ec_step = new_echart_block(
+      type = "step",
+      x = "age",
+      y = "circumference",
+      color = "Tree",
+      title = "Orange Tree Growth (Step)"
+    ),
+
+    # ============================================================
+    # EFFECT SCATTER - animated scatter with ripple effects
+    # ============================================================
+
+    ec_effect_scatter = new_echart_block(
+      type = "effect_scatter",
+      x = "Sepal.Length",
+      y = "Sepal.Width",
+      color = "Species",
+      title = "Iris with Ripple Animation"
+    ),
+
+    # ============================================================
     # HEATMAP - using mtcars aggregated data (specialized block)
     # ============================================================
 
@@ -273,6 +297,12 @@ run_app(
     # Density from mtcars
     new_link("mtcars_data", "ec_density", "data"),
     new_link("mtcars_data", "ec_density_grouped", "data"),
+
+    # Step from Orange
+    new_link("orange_data", "ec_step", "data"),
+
+    # Effect scatter from iris
+    new_link("iris_data", "ec_effect_scatter", "data"),
 
     # Heatmap from aggregated mtcars
     new_link("mtcars_data", "heatmap_agg", "data"),

@@ -1,35 +1,45 @@
-#' ECharts Heatmap Block
+#' ECharts Candlestick Block
 #'
-#' A specialized block for creating heatmap visualizations with ECharts.
-#' Requires pre-aggregated data with categorical x/y columns and a numeric value.
+#' A specialized block for creating candlestick chart visualizations with ECharts.
+#' Used for displaying financial OHLC (Open, High, Low, Close) data.
 #'
-#' @param x Column for x-axis categories (rows)
-#' @param y Column for y-axis categories (columns)
-#' @param value Column for numeric values (determines color intensity)
+#' @param date Column for date/time x-axis
+#' @param open Column for opening price
+#' @param close Column for closing price
+#' @param low Column for low price
+#' @param high Column for high price
 #' @param title Chart title
 #' @param theme ECharts theme name
 #' @param ... Forwarded to \code{\link[blockr.core]{new_transform_block}}
 #'
-#' @return A block object of class `echart_heatmap_block`.
+#' @return A block object of class `echart_candlestick_block`.
 #'
 #' @examples
-#' # Create a heatmap block
-#' new_echart_heatmap_block(x = "cyl", y = "gear", value = "avg_mpg")
+#' # Create a candlestick block
+#' new_echart_candlestick_block(
+#'   date = "date", open = "open", close = "close",
+#'   low = "low", high = "high"
+#' )
 #'
 #' if (interactive()) {
 #'   library(blockr.core)
-#'   library(dplyr)
-#'   agg_data <- mtcars |>
-#'     group_by(cyl, gear) |>
-#'     summarize(avg_mpg = mean(mpg), .groups = "drop")
-#'   serve(new_echart_heatmap_block(), list(data = agg_data))
+#'   stock_data <- data.frame(
+#'     date = as.Date("2024-01-01") + 0:9,
+#'     open = c(100, 102, 101, 103, 102, 104, 103, 105, 104, 106),
+#'     close = c(102, 101, 103, 102, 104, 103, 105, 104, 106, 105),
+#'     low = c(99, 100, 100, 101, 101, 102, 102, 103, 103, 104),
+#'     high = c(103, 103, 104, 104, 105, 105, 106, 106, 107, 107)
+#'   )
+#'   serve(new_echart_candlestick_block(), list(data = stock_data))
 #' }
 #'
 #' @export
-new_echart_heatmap_block <- function(
-    x = character(),
-    y = character(),
-    value = character(),
+new_echart_candlestick_block <- function(
+    date = character(),
+    open = character(),
+    close = character(),
+    low = character(),
+    high = character(),
     title = character(),
     theme = "default",
     ...
@@ -44,13 +54,6 @@ new_echart_heatmap_block <- function(
     if (!isTruthy(val) || length(val) == 0) "" else val
   }
 
-  # Available themes
-  available_themes <- c(
-    "default", "blockr", "dark", "vintage", "westeros", "essos",
-    "wonderland", "walden", "chalk", "infographic",
-    "macarons", "roma", "shine", "purple-passion"
-  )
-
   blockr.core::new_transform_block(
     server = function(id, data) {
       moduleServer(
@@ -63,9 +66,11 @@ new_echart_heatmap_block <- function(
           })
 
           # Initialize reactive values
-          r_x <- reactiveVal(x)
-          r_y <- reactiveVal(normalize_aes(y))
-          r_value <- reactiveVal(normalize_aes(value))
+          r_date <- reactiveVal(date)
+          r_open <- reactiveVal(normalize_aes(open))
+          r_close <- reactiveVal(normalize_aes(close))
+          r_low <- reactiveVal(normalize_aes(low))
+          r_high <- reactiveVal(normalize_aes(high))
           r_title <- reactiveVal(normalize_text(title))
           r_theme <- reactiveVal(theme)
 
@@ -73,9 +78,11 @@ new_echart_heatmap_block <- function(
           r_board_theme <- setup_board_theme_sync(session)
 
           # Observe input changes
-          observeEvent(input$x, r_x(input$x))
-          observeEvent(input$y, r_y(normalize_aes(input$y)))
-          observeEvent(input$value, r_value(normalize_aes(input$value)))
+          observeEvent(input$date, r_date(input$date))
+          observeEvent(input$open, r_open(normalize_aes(input$open)))
+          observeEvent(input$close, r_close(normalize_aes(input$close)))
+          observeEvent(input$low, r_low(normalize_aes(input$low)))
+          observeEvent(input$high, r_high(normalize_aes(input$high)))
           observeEvent(input$title, r_title(normalize_text(input$title)))
           observeEvent(input$theme, r_theme(input$theme))
 
@@ -85,21 +92,33 @@ new_echart_heatmap_block <- function(
             {
               updateSelectInput(
                 session,
-                inputId = "x",
+                inputId = "date",
                 choices = cols(),
-                selected = r_x()
+                selected = r_date()
               )
               updateSelectInput(
                 session,
-                inputId = "y",
-                choices = c("(none)", cols()),
-                selected = r_y()
-              )
-              updateSelectInput(
-                session,
-                inputId = "value",
+                inputId = "open",
                 choices = c("(none)", numeric_cols()),
-                selected = r_value()
+                selected = r_open()
+              )
+              updateSelectInput(
+                session,
+                inputId = "close",
+                choices = c("(none)", numeric_cols()),
+                selected = r_close()
+              )
+              updateSelectInput(
+                session,
+                inputId = "low",
+                choices = c("(none)", numeric_cols()),
+                selected = r_low()
+              )
+              updateSelectInput(
+                session,
+                inputId = "high",
+                choices = c("(none)", numeric_cols()),
+                selected = r_high()
               )
             }
           )
@@ -107,33 +126,40 @@ new_echart_heatmap_block <- function(
           list(
             expr = reactive({
               # Get current values with safe defaults
-              x_val <- r_x()
-              y_val <- r_y()
-              value_val <- r_value()
+              date_val <- r_date()
+              open_val <- r_open()
+              close_val <- r_close()
+              low_val <- r_low()
+              high_val <- r_high()
               title_val <- r_title()
               theme_val <- r_theme()
 
-              # Validate required fields (use isTRUE for safe comparison)
-              if (!isTruthy(x_val) || length(x_val) == 0) {
+              # Validate required fields
+              if (!isTruthy(date_val) || length(date_val) == 0) {
                 return(quote(NULL))
               }
-              if (!isTruthy(y_val) || isTRUE(y_val == "(none)")) {
+              if (!isTruthy(open_val) || isTRUE(open_val == "(none)")) {
                 return(quote(NULL))
               }
-              if (!isTruthy(value_val) || isTRUE(value_val == "(none)")) {
+              if (!isTruthy(close_val) || isTRUE(close_val == "(none)")) {
+                return(quote(NULL))
+              }
+              if (!isTruthy(low_val) || isTRUE(low_val == "(none)")) {
+                return(quote(NULL))
+              }
+              if (!isTruthy(high_val) || isTRUE(high_val == "(none)")) {
                 return(quote(NULL))
               }
 
-              x_col <- x_val
-              y_col <- y_val
-              value_col_bt <- backtick_if_needed(value_val)
+              date_col <- backtick_if_needed(date_val)
+              open_col <- backtick_if_needed(open_val)
+              close_col <- backtick_if_needed(close_val)
+              low_col <- backtick_if_needed(low_val)
+              high_col <- backtick_if_needed(high_val)
 
-              # Build echarts4r expression for heatmap using local() to handle intermediate values
-              # ECharts heatmaps need numeric 0-based indices for x/y positions
+              # Build title part
               has_title <- isTruthy(title_val) && nchar(title_val) > 0
               grid_top <- if (has_title) 60 else 40
-
-              # Build the expression as a local block
               title_part <- if (has_title) {
                 glue::glue(" |>\n  echarts4r::e_title(\"{title_val}\")")
               } else {
@@ -152,32 +178,25 @@ new_echart_heatmap_block <- function(
               }
 
               expr_text <- glue::glue("
-local({{
-  .x_cats <- sort(unique(data[['{x_col}']]))
-  .y_cats <- sort(unique(data[['{y_col}']]))
-  data |>
-    dplyr::mutate(
-      .x_idx = match({backtick_if_needed(x_col)}, .x_cats) - 1,
-      .y_idx = match({backtick_if_needed(y_col)}, .y_cats) - 1
-    ) |>
-    echarts4r::e_charts(.x_idx) |>
-    echarts4r::e_heatmap(.y_idx, {value_col_bt}) |>
-    echarts4r::e_visual_map({value_col_bt}) |>
-    echarts4r::e_grid(left = 60, right = 80, top = {grid_top}, bottom = 60) |>
-    echarts4r::e_x_axis(type = 'category', data = as.character(.x_cats), axisLabel = list(color = '#666')) |>
-    echarts4r::e_y_axis(type = 'category', data = as.character(.y_cats), axisLabel = list(color = '#666')) |>
-    echarts4r::e_legend(show = FALSE){title_part}{theme_part} |>
-    echarts4r::e_text_style(fontFamily = 'Open Sans') |>
-    echarts4r::e_tooltip()
-}})
+data |>
+  echarts4r::e_charts({date_col}) |>
+  echarts4r::e_candle({open_col}, {close_col}, {low_col}, {high_col}) |>
+  echarts4r::e_grid(left = 60, right = 25, top = {grid_top}, bottom = 60) |>
+  echarts4r::e_y_axis(axisLine = list(show = FALSE), axisTick = list(show = FALSE), axisLabel = list(color = '#666')) |>
+  echarts4r::e_x_axis(axisLine = list(lineStyle = list(color = '#ccc')), axisLabel = list(color = '#666')) |>
+  echarts4r::e_legend(show = FALSE){title_part}{theme_part} |>
+  echarts4r::e_text_style(fontFamily = 'Open Sans') |>
+  echarts4r::e_tooltip(trigger = 'axis')
 ")
 
               parse(text = expr_text)[[1]]
             }),
             state = list(
-              x = r_x,
-              y = r_y,
-              value = r_value,
+              date = r_date,
+              open = r_open,
+              close = r_close,
+              low = r_low,
+              high = r_high,
               title = r_title,
               theme = r_theme
             )
@@ -204,7 +223,7 @@ local({{
           div(
             class = "block-form-grid",
 
-            # Heatmap Mappings Section
+            # Candlestick Mappings Section
             div(
               class = "block-section",
               tags$h4(
@@ -212,7 +231,7 @@ local({{
                   "display: flex; align-items: center;",
                   "justify-content: space-between;"
                 ),
-                "Heatmap Mappings",
+                "Candlestick Mappings",
                 tags$small(
                   tags$span("*", style = "color: #dc3545; font-weight: bold;"),
                   " Required field",
@@ -224,45 +243,73 @@ local({{
               ),
               div(
                 class = "block-section-grid",
-                # X-axis (rows)
+                # Date
                 div(
                   class = "block-input-wrapper",
                   selectInput(
-                    inputId = ns("x"),
+                    inputId = ns("date"),
                     label = tags$span(
-                      tags$strong("X Category"),
+                      tags$strong("Date"),
                       tags$span("*", style = "color: #dc3545; margin-left: 2px;")
                     ),
-                    choices = x,
-                    selected = x,
+                    choices = date,
+                    selected = date,
                     width = "100%"
                   )
                 ),
-                # Y-axis (columns)
+                # Open
                 div(
                   class = "block-input-wrapper",
                   selectInput(
-                    inputId = ns("y"),
+                    inputId = ns("open"),
                     label = tags$span(
-                      tags$strong("Y Category"),
+                      tags$strong("Open"),
                       tags$span("*", style = "color: #dc3545; margin-left: 2px;")
                     ),
-                    choices = c("(none)", y),
-                    selected = normalize_aes(y),
+                    choices = c("(none)", open),
+                    selected = normalize_aes(open),
                     width = "100%"
                   )
                 ),
-                # Value (color)
+                # Close
                 div(
                   class = "block-input-wrapper",
                   selectInput(
-                    inputId = ns("value"),
+                    inputId = ns("close"),
                     label = tags$span(
-                      tags$strong("Value"),
+                      tags$strong("Close"),
                       tags$span("*", style = "color: #dc3545; margin-left: 2px;")
                     ),
-                    choices = c("(none)", value),
-                    selected = normalize_aes(value),
+                    choices = c("(none)", close),
+                    selected = normalize_aes(close),
+                    width = "100%"
+                  )
+                ),
+                # Low
+                div(
+                  class = "block-input-wrapper",
+                  selectInput(
+                    inputId = ns("low"),
+                    label = tags$span(
+                      tags$strong("Low"),
+                      tags$span("*", style = "color: #dc3545; margin-left: 2px;")
+                    ),
+                    choices = c("(none)", low),
+                    selected = normalize_aes(low),
+                    width = "100%"
+                  )
+                ),
+                # High
+                div(
+                  class = "block-input-wrapper",
+                  selectInput(
+                    inputId = ns("high"),
+                    label = tags$span(
+                      tags$strong("High"),
+                      tags$span("*", style = "color: #dc3545; margin-left: 2px;")
+                    ),
+                    choices = c("(none)", high),
+                    selected = normalize_aes(high),
                     width = "100%"
                   )
                 )
@@ -320,28 +367,28 @@ local({{
         stop("Input must be a data frame")
       }
     },
-    class = "echart_heatmap_block",
-    allow_empty_state = c("y", "value", "title"),
+    class = "echart_candlestick_block",
+    allow_empty_state = c("open", "close", "low", "high", "title"),
     ...
   )
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_candlestick_block
 #' @param id Module ID
 #' @param x Block object
 #' @export
-block_ui.echart_heatmap_block <- function(id, x, ...) {
+block_ui.echart_candlestick_block <- function(id, x, ...) {
   tagList(
     echart_theme_blockr(),
     echarts4r::echarts4rOutput(NS(id, "result"), height = "400px")
   )
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_candlestick_block
 #' @param result Evaluation result
 #' @param session Shiny session object
 #' @export
-block_output.echart_heatmap_block <- function(x, result, session) {
+block_output.echart_candlestick_block <- function(x, result, session) {
   echarts4r::renderEcharts4r({
     if (!inherits(result, "echarts4r")) {
       return(NULL)
@@ -350,17 +397,17 @@ block_output.echart_heatmap_block <- function(x, result, session) {
   })
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_candlestick_block
 #' @export
-board_options.echart_heatmap_block <- function(x, ...) {
+board_options.echart_candlestick_block <- function(x, ...) {
   blockr.core::combine_board_options(
     new_echart_theme_option(...),
     NextMethod()
   )
 }
 
-#' @rdname new_echart_heatmap_block
+#' @rdname new_echart_candlestick_block
 #' @export
-block_render_trigger.echart_heatmap_block <- function(x, session = blockr.core::get_session()) {
+block_render_trigger.echart_candlestick_block <- function(x, session = blockr.core::get_session()) {
   blockr.core::get_board_option_or_null("echart_theme", session)
 }

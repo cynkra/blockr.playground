@@ -5,6 +5,7 @@
 \alias{block_ui.echart_heatmap_block}
 \alias{block_output.echart_heatmap_block}
 \alias{board_options.echart_heatmap_block}
+\alias{block_render_trigger.echart_heatmap_block}
 \title{ECharts Heatmap Block}
 \usage{
 new_echart_heatmap_block(
@@ -21,6 +22,8 @@ new_echart_heatmap_block(
 \method{block_output}{echart_heatmap_block}(x, result, session)
 
 \method{board_options}{echart_heatmap_block}(x, ...)
+
+\method{block_render_trigger}{echart_heatmap_block}(x, session = blockr.core::get_session())
 }
 \arguments{
 \item{x}{Block object}

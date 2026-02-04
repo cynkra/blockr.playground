@@ -30,6 +30,23 @@ echart_theme_blockr <- function() {
   )
 }
 
+#' Setup reactive board theme sync
+#'
+#' Returns a reactive that tracks the board's echart_theme.
+#' Call this in the block's server function to get a reactive that updates
+#' when the sidebar theme changes.
+#'
+#' @param session Shiny session (ignored, uses blockr.core::get_session())
+#' @return A reactive containing the current board theme
+#' @export
+setup_board_theme_sync <- function(session = NULL) {
+  reactive({
+    # Use blockr.core::get_session() to get the correct session with board options
+    sess <- blockr.core::get_session()
+    blockr.core::get_board_option_or_null("echart_theme", sess) %||% "default"
+  })
+}
+
 #' ECharts theme board option
 #'
 #' Creates a board option for selecting the default ECharts theme.
@@ -73,11 +90,8 @@ new_echart_theme_option <- function(value = "default",
       observeEvent(
         blockr.core::get_board_option_or_null("echart_theme", session),
         {
-          updateSelectInput(
-            session,
-            "echart_theme",
-            selected = blockr.core::get_board_option_value("echart_theme", session)
-          )
+          theme_val <- blockr.core::get_board_option_value("echart_theme", session)
+          updateSelectInput(session, "echart_theme", selected = theme_val)
         }
       )
     },

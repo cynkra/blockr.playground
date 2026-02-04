@@ -4,7 +4,8 @@
 #' types and dynamically shows relevant aesthetics for the selected visualization.
 #'
 #' @param type Initial chart type (default "scatter"). Options: "scatter", "line",
-#'   "bar", "area", "pie", "boxplot", "histogram", "funnel", "density"
+#'   "bar", "area", "pie", "boxplot", "histogram", "funnel", "density", "step",
+#'   "effect_scatter"
 #' @param x Column for x-axis
 #' @param y Column for y-axis
 #' @param color Column for color/group aesthetic
@@ -44,6 +45,7 @@ new_echart_block <- function(
     color = character(),
     size = character(),
     bins = 30,
+    ripple = FALSE,
     title = character(),
     subtitle = character(),
     y_scale = "auto",
@@ -101,6 +103,14 @@ normalize_text <- function(val) {
     density = list(
       required = c("x"),
       optional = c("color")
+    ),
+    step = list(
+      required = c("x", "y"),
+      optional = c("color")
+    ),
+    effect_scatter = list(
+      required = c("x", "y"),
+      optional = c("color", "size")
     )
   )
 
@@ -129,6 +139,7 @@ normalize_text <- function(val) {
           r_color <- reactiveVal(normalize_aes(color))
           r_size <- reactiveVal(normalize_aes(size))
           r_bins <- reactiveVal(bins)
+          r_ripple <- reactiveVal(ripple)
           r_title <- reactiveVal(normalize_text(title))
           r_subtitle <- reactiveVal(normalize_text(subtitle))
           r_y_scale <- reactiveVal(y_scale)
@@ -137,6 +148,9 @@ normalize_text <- function(val) {
           r_legend_position <- reactiveVal(legend_position)
           r_theme <- reactiveVal(theme)
 
+          # Sync with board theme option
+          r_board_theme <- setup_board_theme_sync(session)
+
           # Observe input changes
           observeEvent(input$type, r_type(input$type))
           observeEvent(input$x, r_x(input$x))
@@ -144,6 +158,7 @@ normalize_text <- function(val) {
           observeEvent(input$color, r_color(normalize_aes(input$color)))
           observeEvent(input$size, r_size(normalize_aes(input$size)))
           observeEvent(input$bins, r_bins(input$bins))
+          observeEvent(input$ripple, r_ripple(input$ripple))
           observeEvent(input$title, r_title(normalize_text(input$title)))
           observeEvent(input$subtitle, r_subtitle(normalize_text(input$subtitle)))
           observeEvent(input$y_scale, r_y_scale(input$y_scale))
@@ -204,6 +219,13 @@ normalize_text <- function(val) {
                 } else {
                   shinyjs::hide(aes)
                 }
+              }
+
+              # Show ripple option only for effect_scatter
+              if (current_type == "effect_scatter") {
+                shinyjs::show("ripple")
+              } else {
+                shinyjs::hide("ripple")
               }
 
               # Update labels to show required indicators
@@ -338,6 +360,24 @@ normalize_text <- function(val) {
                 },
                 density = {
                   glue::glue("echarts4r::e_density({x_col})")
+                },
+                step = {
+                  y_col <- backtick_if_needed(r_y())
+                  glue::glue("echarts4r::e_step({y_col})")
+                },
+                effect_scatter = {
+                  y_col <- backtick_if_needed(r_y())
+                  ripple_opts <- if (r_ripple()) {
+                    ", rippleEffect = list(brushType = \"stroke\", scale = 2.5, period = 4)"
+                  } else {
+                    ""
+                  }
+                  if (r_size() != "(none)" && "size" %in% chart_config$optional) {
+                    size_col <- backtick_if_needed(r_size())
+                    glue::glue("echarts4r::e_effect_scatter({y_col}, size = {size_col}{ripple_opts})")
+                  } else {
+                    glue::glue("echarts4r::e_effect_scatter({y_col}, symbol_size = 10{ripple_opts})")
+                  }
                 }
               )
               parts <- c(parts, chart_call)
@@ -458,10 +498,7 @@ normalize_text <- function(val) {
               # Determine effective theme: block setting takes priority, then board option
               theme_val <- r_theme()
               if (theme_val == "default") {
-                global_theme <- blockr.core::get_board_option_or_null("echart_theme", session) %||% "default"
-                if (global_theme != "default") {
-                  theme_val <- global_theme
-                }
+                theme_val <- r_board_theme()
               }
 
               # Apply theme if not default
@@ -493,6 +530,7 @@ normalize_text <- function(val) {
               color = r_color,
               size = r_size,
               bins = r_bins,
+              ripple = r_ripple,
               title = r_title,
               subtitle = r_subtitle,
               y_scale = r_y_scale,
@@ -623,7 +661,9 @@ normalize_text <- function(val) {
                       tags$div(icon("box"), tags$span("Boxplot")),
                       tags$div(icon("chart-column"), tags$span("Histogram")),
                       tags$div(icon("filter"), tags$span("Funnel")),
-                      tags$div(icon("wave-square"), tags$span("Density"))
+                      tags$div(icon("wave-square"), tags$span("Density")),
+                      tags$div(icon("stairs"), tags$span("Step")),
+                      tags$div(icon("circle-dot"), tags$span("Effect"))
                     ),
                     choiceValues = c(
                       "scatter",
@@ -634,7 +674,9 @@ normalize_text <- function(val) {
                       "boxplot",
                       "histogram",
                       "funnel",
-                      "density"
+                      "density",
+                      "step",
+                      "effect_scatter"
                     ),
                     selected = type,
                     status = "light",
@@ -794,6 +836,24 @@ normalize_text <- function(val) {
                 )
               ),
 
+              # Animation (effect_scatter only)
+              div(
+                id = ns("ripple"),
+                class = "block-section",
+                div(
+                  class = "block-section-grid",
+                  div(
+                    class = "block-input-wrapper",
+                    checkboxInput(
+                      inputId = ns("ripple"),
+                      label = "Enable ripple animation",
+                      value = ripple,
+                      width = "100%"
+                    )
+                  )
+                )
+              ),
+
               # Axes
               div(
                 class = "block-section",
@@ -939,4 +999,10 @@ board_options.echart_block <- function(x, ...) {
     new_echart_theme_option(...),
     NextMethod()
   )
+}
+
+#' @rdname new_echart_block
+#' @export
+block_render_trigger.echart_block <- function(x, session = blockr.core::get_session()) {
+  blockr.core::get_board_option_or_null("echart_theme", session)
 }
