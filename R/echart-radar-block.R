@@ -35,7 +35,7 @@ new_echart_radar_block <- function(
 
   # Available themes
   available_themes <- c(
-    "default", "dark", "vintage", "westeros", "essos",
+    "default", "blockr", "dark", "vintage", "westeros", "essos",
     "wonderland", "walden", "chalk", "infographic",
     "macarons", "roma", "shine", "purple-passion"
   )
@@ -110,14 +110,16 @@ new_echart_radar_block <- function(
                 ""
               }
 
-              theme_part <- if (isTruthy(theme_val) && !isTRUE(theme_val == "default")) {
-                glue::glue(" |>\n    echarts4r::e_theme(\"{theme_val}\")")
-              } else {
-                ""
+              # Determine effective theme: block setting takes priority, then global option
+              if (!isTruthy(theme_val) || isTRUE(theme_val == "default")) {
+                global_theme <- getOption("blockr.echart_theme", "default")
+                if (global_theme != "default") {
+                  theme_val <- global_theme
+                }
               }
 
-              color_part <- if (!isTruthy(theme_val) || isTRUE(theme_val == "default")) {
-                " |>\n    echarts4r::e_color(c(\"#0072B2\", \"#D55E00\", \"#F0E442\", \"#009E73\", \"#56B4E9\", \"#E69F00\", \"#CC79A7\"))"
+              theme_part <- if (isTruthy(theme_val) && !isTRUE(theme_val == "default")) {
+                glue::glue(" |>\n    echarts4r::e_theme(\"{theme_val}\")")
               } else {
                 ""
               }
@@ -160,7 +162,7 @@ local({{
 
   # Add remaining options
   .chart |>
-    echarts4r::e_legend(bottom = 0){color_part}{title_part}{theme_part} |>
+    echarts4r::e_legend(bottom = 0){title_part}{theme_part} |>
     echarts4r::e_text_style(fontFamily = 'Open Sans') |>
     echarts4r::e_tooltip()
 }})
@@ -272,6 +274,7 @@ local({{
                     label = "Theme",
                     choices = c(
                       "Default" = "default",
+                      "Blockr" = "blockr",
                       "Dark" = "dark",
                       "Vintage" = "vintage",
                       "Westeros" = "westeros",
@@ -312,6 +315,7 @@ local({{
 #' @export
 block_ui.echart_radar_block <- function(id, x, ...) {
   tagList(
+    echart_theme_blockr(),
     echarts4r::echarts4rOutput(NS(id, "result"), height = "400px")
   )
 }

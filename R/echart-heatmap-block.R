@@ -46,7 +46,7 @@ new_echart_heatmap_block <- function(
 
   # Available themes
   available_themes <- c(
-    "default", "dark", "vintage", "westeros", "essos",
+    "default", "blockr", "dark", "vintage", "westeros", "essos",
     "wonderland", "walden", "chalk", "infographic",
     "macarons", "roma", "shine", "purple-passion"
   )
@@ -135,6 +135,14 @@ new_echart_heatmap_block <- function(
                 glue::glue(" |>\n  echarts4r::e_title(\"{title_val}\")")
               } else {
                 ""
+              }
+
+              # Determine effective theme: block setting takes priority, then global option
+              if (isTRUE(theme_val == "default")) {
+                global_theme <- getOption("blockr.echart_theme", "default")
+                if (global_theme != "default") {
+                  theme_val <- global_theme
+                }
               }
 
               theme_part <- if (isTruthy(theme_val) && !isTRUE(theme_val == "default")) {
@@ -283,6 +291,7 @@ local({{
                     label = "Theme",
                     choices = c(
                       "Default" = "default",
+                      "Blockr" = "blockr",
                       "Dark" = "dark",
                       "Vintage" = "vintage",
                       "Westeros" = "westeros",
@@ -323,6 +332,7 @@ local({{
 #' @export
 block_ui.echart_heatmap_block <- function(id, x, ...) {
   tagList(
+    echart_theme_blockr(),
     echarts4r::echarts4rOutput(NS(id, "result"), height = "400px")
   )
 }

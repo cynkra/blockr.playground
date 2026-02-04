@@ -4,6 +4,11 @@
 library(blockr)
 pkgload::load_all()
 
+# Set default theme for all echart blocks (optional)
+# Options: "default", "blockr", "infographic", "vintage", "dark", etc.
+# "blockr" uses a colorblind-friendly palette
+options(blockr.echart_theme = "blockr")
+
 run_app(
   blocks = c(
     # ============================================================

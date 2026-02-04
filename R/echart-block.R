@@ -98,7 +98,7 @@ normalize_text <- function(val) {
 
   # Available themes
   available_themes <- c(
-    "default", "dark", "vintage", "westeros", "essos",
+    "default", "blockr", "dark", "vintage", "westeros", "essos",
     "wonderland", "walden", "chalk", "infographic",
     "macarons", "roma", "shine", "purple-passion"
   )
@@ -440,28 +440,20 @@ normalize_text <- function(val) {
                 parts <- c(parts, "echarts4r::e_legend(show = FALSE)")
               }
 
-              # Color palette (unless using a theme other than default)
-              if (r_theme() == "default") {
-                if (current_type %in% c("line", "area")) {
-                  # Line palette: Black 3rd for contrast
-                  parts <- c(
-                    parts,
-                    "echarts4r::e_color(c(\"#0072B2\", \"#D55E00\", \"#000000\", \"#009E73\", \"#56B4E9\", \"#E69F00\", \"#CC79A7\", \"#999999\"))"
-                  )
-                } else {
-                  # Filled palette: Yellow 3rd for brightness
-                  parts <- c(
-                    parts,
-                    "echarts4r::e_color(c(\"#0072B2\", \"#D55E00\", \"#F0E442\", \"#009E73\", \"#56B4E9\", \"#E69F00\", \"#CC79A7\"))"
-                  )
+              # Determine effective theme: block setting takes priority, then global option
+              theme_val <- r_theme()
+              if (theme_val == "default") {
+                global_theme <- getOption("blockr.echart_theme", "default")
+                if (global_theme != "default") {
+                  theme_val <- global_theme
                 }
               }
 
               # Apply theme if not default
-              if (r_theme() != "default") {
+              if (theme_val != "default") {
                 parts <- c(
                   parts,
-                  glue::glue("echarts4r::e_theme(\"{r_theme()}\")")
+                  glue::glue("echarts4r::e_theme(\"{theme_val}\")")
                 )
               }
 
@@ -861,6 +853,7 @@ normalize_text <- function(val) {
                       label = "Theme",
                       choices = c(
                         "Default" = "default",
+                        "Blockr" = "blockr",
                         "Dark" = "dark",
                         "Vintage" = "vintage",
                         "Westeros" = "westeros",
@@ -902,6 +895,7 @@ normalize_text <- function(val) {
 #' @export
 block_ui.echart_block <- function(id, x, ...) {
   tagList(
+    echart_theme_blockr(),
     echarts4r::echarts4rOutput(NS(id, "result"), height = "400px")
   )
 }
