@@ -4,8 +4,8 @@
 #' types and dynamically shows relevant aesthetics for the selected visualization.
 #'
 #' @param type Initial chart type (default "scatter"). Options: "scatter", "line",
-#'   "bar", "area", "pie", "boxplot", "histogram", "funnel", "density", "step",
-#'   "effect_scatter"
+#'   "bar", "area", "pie", "doughnut", "boxplot", "violin", "histogram",
+#'   "funnel", "density", "step", "effect_scatter"
 #' @param x Column for x-axis
 #' @param y Column for y-axis
 #' @param color Column for color/group aesthetic
@@ -88,7 +88,15 @@ normalize_text <- function(val) {
       required = c("x"),
       optional = c("y")
     ),
+    doughnut = list(
+      required = c("x"),
+      optional = c("y")
+    ),
     boxplot = list(
+      required = c("x", "y"),
+      optional = c("color")
+    ),
+    violin = list(
       required = c("x", "y"),
       optional = c("color")
     ),
@@ -291,20 +299,20 @@ normalize_text <- function(val) {
               # Add grouping if color is specified (except for pie, histogram, boxplot, funnel)
               has_group <- r_color() != "(none)" &&
                 "color" %in% chart_config$optional &&
-                !current_type %in% c("pie", "histogram", "boxplot", "funnel")
+                !current_type %in% c("pie", "doughnut", "histogram", "boxplot", "violin", "funnel")
 
               if (has_group) {
                 color_col <- backtick_if_needed(r_color())
                 parts <- c(parts, glue::glue("dplyr::group_by({color_col})"))
               }
 
-              # Boxplots always need grouping by x
-              if (current_type == "boxplot") {
+              # Boxplots and violins always need grouping by x
+              if (current_type %in% c("boxplot", "violin")) {
                 parts <- c(parts, glue::glue("dplyr::group_by({x_col})"))
               }
 
               # Add e_charts() call - histogram, boxplot, funnel, density need empty e_charts()
-              if (current_type %in% c("histogram", "boxplot", "funnel", "density")) {
+              if (current_type %in% c("histogram", "boxplot", "violin", "funnel", "density")) {
                 parts <- c(parts, "echarts4r::e_charts()")
               } else {
                 parts <- c(parts, glue::glue("echarts4r::e_charts({x_col})"))
@@ -346,9 +354,21 @@ normalize_text <- function(val) {
                     "echarts4r::e_pie()"
                   }
                 },
+                doughnut = {
+                  if (r_y() != "(none)" && isTruthy(r_y())) {
+                    y_col <- backtick_if_needed(r_y())
+                    glue::glue("echarts4r::e_doughnut({y_col})")
+                  } else {
+                    "echarts4r::e_doughnut()"
+                  }
+                },
                 boxplot = {
                   y_col <- backtick_if_needed(r_y())
                   glue::glue("echarts4r::e_boxplot({y_col})")
+                },
+                violin = {
+                  y_col <- backtick_if_needed(r_y())
+                  glue::glue("echarts4r::e_violin({y_col})")
                 },
                 histogram = {
                   bin_count <- r_bins()
@@ -403,10 +423,10 @@ normalize_text <- function(val) {
 
               # Grid/padding - adjusted for title
               grid_top <- if (nchar(r_title()) > 0) 60 else 40
-              grid_bottom <- if (r_legend_position() == "bottom" && (has_group || current_type == "pie")) 60 else 40
+              grid_bottom <- if (r_legend_position() == "bottom" && (has_group || current_type %in% c("pie", "doughnut"))) 60 else 40
 
               # Axis styling only for non-pie and non-funnel charts
-              if (!current_type %in% c("pie", "funnel")) {
+              if (!current_type %in% c("pie", "doughnut", "funnel")) {
                 # Build y-axis options
                 y_axis_opts <- list(
                   "axisLine = list(show = FALSE)",
@@ -470,7 +490,7 @@ normalize_text <- function(val) {
 
               if (legend_pos == "none") {
                 parts <- c(parts, "echarts4r::e_legend(show = FALSE)")
-              } else if (current_type == "pie") {
+              } else if (current_type %in% c("pie", "doughnut")) {
                 # Pie always shows legend
                 legend_call <- switch(
                   legend_pos,
@@ -658,7 +678,9 @@ normalize_text <- function(val) {
                       tags$div(icon("chart-bar"), tags$span("Bar")),
                       tags$div(icon("chart-area"), tags$span("Area")),
                       tags$div(icon("chart-pie"), tags$span("Pie")),
+                      tags$div(icon("circle"), tags$span("Doughnut")),
                       tags$div(icon("box"), tags$span("Boxplot")),
+                      tags$div(icon("guitar"), tags$span("Violin")),
                       tags$div(icon("chart-column"), tags$span("Histogram")),
                       tags$div(icon("filter"), tags$span("Funnel")),
                       tags$div(icon("wave-square"), tags$span("Density")),
@@ -671,7 +693,9 @@ normalize_text <- function(val) {
                       "bar",
                       "area",
                       "pie",
+                      "doughnut",
                       "boxplot",
+                      "violin",
                       "histogram",
                       "funnel",
                       "density",

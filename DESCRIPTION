@@ -37,7 +37,7 @@ Imports:
     blockr.core (>= 0.1.1),
     chartjs,
     dplyr,
-    echarts4r,
+    echarts4r (>= 0.5.0),
     glue,
     highcharter,
     plotly,

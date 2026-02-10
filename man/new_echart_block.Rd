@@ -36,8 +36,8 @@ new_echart_block(
 }
 \arguments{
 \item{type}{Initial chart type (default "scatter"). Options: "scatter", "line",
-"bar", "area", "pie", "boxplot", "histogram", "funnel", "density", "step",
-"effect_scatter"}
+"bar", "area", "pie", "doughnut", "boxplot", "violin", "histogram",
+"funnel", "density", "step", "effect_scatter"}
 
 \item{x}{Block object}
 
