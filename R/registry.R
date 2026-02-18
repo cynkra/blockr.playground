@@ -117,4 +117,13 @@ register_playground_blocks <- function() {
     package = utils::packageName(),
     overwrite = TRUE
   )
+  register_blocks(
+    "new_echart_hierarchy_block",
+    name = "EChart Hierarchy",
+    description = "Hierarchical filter (sunburst, treemap, tree)",
+    category = "plot",
+    icon = "diagram-3",
+    package = utils::packageName(),
+    overwrite = TRUE
+  )
 } # nocov end
