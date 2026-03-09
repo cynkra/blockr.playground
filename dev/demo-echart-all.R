@@ -1,7 +1,7 @@
 # Demo: All ECharts capabilities in blockr.playground
 
 library(blockr)
-pkgload::load_all()
+pkgload::load_all("blockr.playground")
 
 # ============================================================
 # DATA
